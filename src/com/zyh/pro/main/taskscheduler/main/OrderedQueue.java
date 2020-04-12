@@ -1,4 +1,4 @@
-package main;
+package com.zyh.pro.main.taskscheduler.main;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -29,23 +29,20 @@ public class OrderedQueue<E extends Comparable<E>> {
 	}
 
 	public synchronized E take() throws InterruptedException {
-		if (isClosedWhileWaiting())
-			return null;
+		closedWhileWaiting();
 		return store.remove(0);
 	}
 
 	public synchronized E peek() throws InterruptedException {
-		if (isClosedWhileWaiting())
-			return null;
+		closedWhileWaiting();
 		return store.get(0);
 	}
 
-	private boolean isClosedWhileWaiting() throws InterruptedException {
+	private void closedWhileWaiting() throws InterruptedException {
 		while (isEmpty()) {
-			if (isClosed) return true;
+			if (isClosed) throw new InterruptedException("queue has been closed while waiting...");
 			wait();
 		}
-		return false;
 	}
 
 	public void closeQueue() {

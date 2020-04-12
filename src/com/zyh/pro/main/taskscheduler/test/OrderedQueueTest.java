@@ -1,7 +1,7 @@
-package test;
+package com.zyh.pro.main.taskscheduler.test;
 
-import main.CallbackTask;
-import main.OrderedQueue;
+import com.zyh.pro.main.taskscheduler.main.CallbackTask;
+import com.zyh.pro.main.taskscheduler.main.OrderedQueue;
 import org.junit.Test;
 
 import java.util.List;
@@ -69,15 +69,11 @@ public class OrderedQueueTest {
 
 	private void asyncTake(OrderedQueue<Integer> queue, CallbackTask task, List<Integer> result) {
 		Executors.newSingleThreadExecutor().submit(() -> {
-			try {
-				while (!queue.isClosed() || !queue.isEmpty()) {
-					push(queue, result);
-					push(queue, result);
-				}
-				task.done();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+			while (!queue.isClosed() || !queue.isEmpty()) {
+				push(queue, result);
+				push(queue, result);
 			}
+			task.done();
 		});
 	}
 
@@ -96,10 +92,14 @@ public class OrderedQueueTest {
 		});
 	}
 
-	private void push(OrderedQueue<Integer> queue, List<Integer> result) throws InterruptedException {
-		Integer take = queue.take();
-		if (take != null)
-			result.add(take);
+	private void push(OrderedQueue<Integer> queue, List<Integer> result) {
+		try {
+			Integer take = queue.take();
+			if (take != null)
+				result.add(take);
+		} catch (InterruptedException ignored) {
+			System.out.println("push: queue was closed.");
+		}
 	}
 
 	private OrderedQueue<Integer> getIntegerOrderedQueue() {

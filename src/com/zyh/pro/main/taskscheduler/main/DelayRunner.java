@@ -1,4 +1,4 @@
-package main;
+package com.zyh.pro.main.taskscheduler.main;
 
 public class DelayRunner implements Runnable {
 
@@ -7,6 +7,8 @@ public class DelayRunner implements Runnable {
 	private final Thread service;
 
 	private volatile boolean sleeping;
+
+	private volatile boolean isShutdown;
 
 	DelayRunner(OrderedQueue<ScheduledTask> tasks) {
 		this.tasks = tasks;
@@ -25,7 +27,7 @@ public class DelayRunner implements Runnable {
 
 	@Override
 	public void run() {
-		while (true) {
+		while (!isShutdown) {
 			try {
 				doTaskIfTimeIsUp();
 			} catch (InterruptedException e) {
@@ -51,5 +53,10 @@ public class DelayRunner implements Runnable {
 			if (tasks.peek().timeIsUp())
 				tasks.take().doTask();
 		}
+	}
+
+	public void stop() {
+		isShutdown = true;
+		tasks.closeQueue();
 	}
 }

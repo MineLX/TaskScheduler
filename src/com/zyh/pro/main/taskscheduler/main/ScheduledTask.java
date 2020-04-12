@@ -1,4 +1,4 @@
-package main;
+package com.zyh.pro.main.taskscheduler.main;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -10,7 +10,7 @@ public class ScheduledTask implements Comparable<ScheduledTask> {
 
 	private static final List<ScheduledTask> FREE_TASKS = new LinkedList<>();
 
-	private final LongSupplier startTime;
+	private LongSupplier startTime;
 
 	private Runnable task;
 
@@ -38,11 +38,7 @@ public class ScheduledTask implements Comparable<ScheduledTask> {
 	}
 
 	private long getTimestamp() {
-		return getStartTime() + delay;
-	}
-
-	private long getStartTime() {
-		return startTime.getAsLong();
+		return startTime.getAsLong() + delay;
 	}
 
 	@Override
@@ -55,16 +51,17 @@ public class ScheduledTask implements Comparable<ScheduledTask> {
 		return "Task(" + getTimestamp() + ")";
 	}
 
-	static ScheduledTask get(Runnable task, int delay, LongSupplier startTime) {
+	static ScheduledTask get(Runnable task, long delay, LongSupplier startTime) {
 		if (FREE_TASKS.isEmpty())
 			return new ScheduledTask(startTime, task, delay);
-		return cache(task, delay);
+		return cache(task, delay, startTime);
 	}
 
-	private synchronized static ScheduledTask cache(Runnable task, int delay) {
+	private synchronized static ScheduledTask cache(Runnable task, long delay, LongSupplier startTime) {
 		ScheduledTask result = FREE_TASKS.remove(0);
 		result.task = task;
 		result.delay = delay;
+		result.startTime = startTime;
 		return result;
 	}
 
