@@ -1,16 +1,16 @@
-package com.zyh.pro.main.taskscheduler.main;
+package com.zyh.pro.taskscheduler.main;
 
 import java.util.List;
 import java.util.function.LongSupplier;
 
+import static com.zyh.pro.taskscheduler.main.ScheduledTask.get;
 import static java.lang.System.currentTimeMillis;
-import static com.zyh.pro.main.taskscheduler.main.ScheduledTask.get;
 
 public class TaskScheduler {
 
 	private final OrderedQueue<ScheduledTask> tasks;
 
-	private final DelayRunner delayRunner;
+	private final TasksExecutor tasksExecutor;
 
 	private final LongSupplier startTimeSupplier;
 
@@ -18,13 +18,13 @@ public class TaskScheduler {
 
 	public TaskScheduler() {
 		tasks = new OrderedQueue<>();
-		delayRunner = new DelayRunner(tasks);
+		tasksExecutor = new TasksExecutor(tasks);
 		startTimeSupplier = () -> startTime;
 	}
 
 	public void addTask(Runnable task, long delay) {
 		tasks.add(get(task, delay, startTimeSupplier));
-		delayRunner.interruptSleep();
+		tasksExecutor.interruptSleep();
 	}
 
 	public void addTask(Scheduled scheduled) {
@@ -37,11 +37,19 @@ public class TaskScheduler {
 
 	public void start() {
 		startTime = currentTimeMillis();
-		delayRunner.start();
+		tasksExecutor.start();
 	}
 
-	public void stop() {
-		delayRunner.stop();
+	public void shutdownNow() {
+		tasksExecutor.shutdownNow();
+	}
+
+	public void shutdown() {
+		tasksExecutor.shutdown();
+	}
+
+	public boolean isShutdown() {
+		return tasksExecutor.isShutdown();
 	}
 
 	public interface Scheduled {

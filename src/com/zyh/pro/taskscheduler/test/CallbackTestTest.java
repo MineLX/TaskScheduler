@@ -1,6 +1,6 @@
-package com.zyh.pro.main.taskscheduler.test;
+package com.zyh.pro.taskscheduler.test;
 
-import com.zyh.pro.main.taskscheduler.main.CallbackTask;
+import com.zyh.pro.taskscheduler.main.CallbackTask;
 import org.junit.Test;
 
 import java.util.concurrent.Executors;

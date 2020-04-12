@@ -1,9 +1,8 @@
-package com.zyh.pro.main.taskscheduler.test;
+package com.zyh.pro.taskscheduler.test;
 
-import com.zyh.pro.main.taskscheduler.main.CallbackTask;
-import com.zyh.pro.main.taskscheduler.main.Schedulers;
-import com.zyh.pro.main.taskscheduler.main.SelfScheduled;
-import com.zyh.pro.main.taskscheduler.main.TaskScheduler;
+import com.zyh.pro.taskscheduler.main.CallbackTask;
+import com.zyh.pro.taskscheduler.main.Schedulers;
+import com.zyh.pro.taskscheduler.main.SelfScheduled;
 import org.junit.Test;
 
 import java.util.Arrays;
