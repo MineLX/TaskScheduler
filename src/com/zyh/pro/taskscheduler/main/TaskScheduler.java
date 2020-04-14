@@ -8,7 +8,7 @@ import static java.lang.System.currentTimeMillis;
 
 public class TaskScheduler {
 
-	private final BlockedQueue<ScheduledTask> tasks;
+	private final OrderedQueue<ScheduledTask> tasks;
 
 	private final TasksExecutor tasksExecutor;
 
@@ -19,10 +19,9 @@ public class TaskScheduler {
 	private long startTime; // FIXME 2020/4/14  wait for me!!! startTime to factory
 
 	public TaskScheduler() {
-		tasks = new BlockedQueue<>();
+		tasks = new OrderedQueue<>();
 		tasksExecutor = new TasksExecutor();
 		service = new Thread(tasksExecutor);
-
 		startTimeSupplier = () -> startTime;
 	}
 

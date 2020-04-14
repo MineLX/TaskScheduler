@@ -1,7 +1,7 @@
 package com.zyh.pro.taskscheduler.test;
 
-import com.zyh.pro.taskscheduler.main.BlockedQueue;
 import com.zyh.pro.taskscheduler.main.CallbackTask;
+import com.zyh.pro.taskscheduler.main.OrderedQueue;
 import org.junit.Test;
 
 import java.util.concurrent.Executors;
@@ -12,7 +12,7 @@ public class WeiredTest {
 	public void simple_test() throws InterruptedException {
 		CallbackTask task = new CallbackTask(400);
 
-		BlockedQueue<Integer> taskScheduler = new BlockedQueue<>();
+		OrderedQueue<Integer> taskScheduler = new OrderedQueue<>();
 
 		asyncAddTask(taskScheduler);
 		asyncAddTask(taskScheduler);
@@ -25,7 +25,7 @@ public class WeiredTest {
 		task.waitForCompletion();
 	}
 
-	private void asyncTakeTask(CallbackTask task, BlockedQueue<Integer> taskScheduler) {
+	private void asyncTakeTask(CallbackTask task, OrderedQueue<Integer> taskScheduler) {
 		Executors.newSingleThreadExecutor().submit(() -> {
 			while (!taskScheduler.isEmpty()) {
 				try {
@@ -39,7 +39,7 @@ public class WeiredTest {
 		});
 	}
 
-	private void asyncAddTask(BlockedQueue<Integer> taskQueue) {
+	private void asyncAddTask(OrderedQueue<Integer> taskQueue) {
 		Executors.newSingleThreadExecutor().submit(() -> {
 			for (int i = 0; i < 100; i++)
 				taskQueue.add(i);

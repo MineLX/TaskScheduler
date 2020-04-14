@@ -1,92 +1,97 @@
 package com.zyh.pro.taskscheduler.main;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
 
 public class OrderedQueue<E extends Comparable<E>> {
 
-	private final List<E> store;
+	private final List<E> list;
 
-	private boolean isClosed;
+	private boolean isShutdown;
 
 	public OrderedQueue() {
-		store = new LinkedList<>();
+		list = new ArrayList<>();
 	}
 
-	public synchronized void add(E addend) {
-		if (store.isEmpty() || lessThat(lastElement(), addend)) {
-			insertToLast(addend);
-			return;
+	public synchronized void add(E e) {
+		if (isShutdown) {
+			System.out.println("shutdown add");
+			throw new IllegalStateException("queue has been shutdown, add is forbidden.");
 		}
 
-		// find its position
-		for (int at = 0; at < store.size(); at++) {
-			if (!lessThat(store.get(at), addend)) {
-				insertTo(at, addend);
-				return;
-			}
-		}
+		// add to list, notify the element takers
+		list.add(getPositionOf(e), e);
+		notifyAll();
 	}
 
 	public synchronized E take() throws InterruptedException {
-		closedWhileWaiting();
-		return store.remove(0);
+		waitForElement();
+		return list.remove(0);
 	}
 
 	public synchronized E peek() throws InterruptedException {
-		closedWhileWaiting();
-		return store.get(0);
+		waitForElement();
+		return list.get(0);
 	}
 
-	private synchronized void closedWhileWaiting() throws InterruptedException {
+	private synchronized void waitForElement() throws InterruptedException {
 		while (isEmpty()) {
-			if (isClosed) throw new InterruptedException("queue has been closed while waiting...");
+			if (isShutdown) throw new IllegalStateException("queue has been shutdown while waiting...");
 			wait();
 		}
 	}
 
 	public synchronized boolean isEmpty() {
-		return store.isEmpty();
+		return list.isEmpty();
 	}
 
-	public void closeQueue() {
-		isClosed = true;
-		synchronized (this) {
-			notifyAll();
-		}
+	public synchronized void shutdown() {
+		isShutdown = true;
+		notifyAll();
+	}
+
+	public synchronized boolean isShutdown() {
+		return isShutdown;
 	}
 
 	@Override
 	public String toString() {
-		return store.toString();
+		return list.toString();
 	}
 
-	private void insertTo(int index, E addend) {
-		store.add(index, addend);
+	private int getPositionOf(E addend) {
+		if (isEmpty())
+			return 0;
 
-		// notify the take waiter
-		synchronized (this) {
-			notify();
+		int left = 0;
+		int right = list.size();
+		int middleIndex;
+
+		while (left != (middleIndex = (left + right) / 2)) {
+			int compareResult = addend.compareTo(list.get(middleIndex));
+			if (compareResult < 0) {            // lower than middleElement
+				right = middleIndex;
+			} else if (compareResult > 0) {     // bigger than middleElement
+				left = middleIndex;
+			} else {
+				return middleIndex + 1;
+			}
 		}
+
+		if (addend.compareTo(list.get(left)) < 0)
+			return left;
+		return right;
 	}
 
-	private boolean lessThat(E one, E another) {
-		return one.compareTo(another) < 0;
+	public synchronized E takeIf(Predicate<E> predicate) throws InterruptedException {
+		return predicate.test(peek()) ? take() : null;
 	}
 
-	private E lastElement() {
-		return store.get(store.size() - 1);
-	}
-
-	private void insertToLast(E addend) {
-		insertTo(store.size(), addend);
-	}
-
-	public int size() {
-		return store.size();
-	}
-
-	public boolean isClosed() {
-		return isClosed;
+	public synchronized Optional<E> optionalIf(Predicate<E> predicate) throws InterruptedException {
+		if (predicate.test(peek()))
+			return Optional.of(take());
+		return Optional.empty();
 	}
 }

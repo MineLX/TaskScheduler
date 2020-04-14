@@ -1,7 +1,7 @@
 package com.zyh.pro.taskscheduler.test;
 
-import com.zyh.pro.taskscheduler.main.BlockedQueue;
 import com.zyh.pro.taskscheduler.main.CallbackTask;
+import com.zyh.pro.taskscheduler.main.OrderedQueue;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -21,7 +21,7 @@ public class AsyncQueueTest {
 	public void multi() throws InterruptedException {
 		CallbackTask task = new CallbackTask(7500);
 
-		BlockedQueue<Integer> queue = new BlockedQueue<>();
+		OrderedQueue<Integer> queue = new OrderedQueue<>();
 
 		List<Integer> list = synchronizedList(new LinkedList<>());
 
@@ -56,7 +56,7 @@ public class AsyncQueueTest {
 		System.out.println("victory");
 	}
 
-	private void take(BlockedQueue<Integer> queue, List<Integer> result, CallbackTask task) {
+	private void take(OrderedQueue<Integer> queue, List<Integer> result, CallbackTask task) {
 		ExecutorService executorService = Executors.newSingleThreadExecutor();
 		executorService.submit(() -> {
 			while (!queue.isEmpty()) {
@@ -71,7 +71,7 @@ public class AsyncQueueTest {
 		executorService.shutdown();
 	}
 
-	private void add(BlockedQueue<Integer> queue, int start, int end) {
+	private void add(OrderedQueue<Integer> queue, int start, int end) {
 		ExecutorService executorService = Executors.newSingleThreadExecutor();
 		executorService.submit(() -> {
 			for (int index = start; index < end; index++) {

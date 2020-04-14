@@ -1,6 +1,6 @@
 package com.zyh.pro.taskscheduler.test;
 
-import com.zyh.pro.taskscheduler.main.BlockedQueue;
+import com.zyh.pro.taskscheduler.main.OrderedQueue;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -11,10 +11,10 @@ import java.util.concurrent.Executors;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
-public class BlockedQueueTest {
+public class OrderedQueueTest {
 	@Test
 	public void takeIf() throws InterruptedException {
-		BlockedQueue<Integer> queue = new BlockedQueue<>();
+		OrderedQueue<Integer> queue = new OrderedQueue<>();
 		queue.add(1);
 		queue.add(2);
 		queue.add(3);
@@ -25,7 +25,7 @@ public class BlockedQueueTest {
 
 	@Test
 	public void peek() throws InterruptedException {
-		BlockedQueue<Integer> queue = new BlockedQueue<>();
+		OrderedQueue<Integer> queue = new OrderedQueue<>();
 		Executors.newSingleThreadExecutor().submit(() -> {
 			queue.add(0);
 		});
@@ -36,7 +36,7 @@ public class BlockedQueueTest {
 
 	@Test
 	public void shutdown() throws InterruptedException {
-		BlockedQueue<Integer> queue = new BlockedQueue<>();
+		OrderedQueue<Integer> queue = new OrderedQueue<>();
 		queue.add(1);
 		queue.add(2);
 		queue.add(3);
@@ -56,7 +56,7 @@ public class BlockedQueueTest {
 	@Test
 	public void ordered() {
 		ArrayList<Integer> result = new ArrayList<>();
-		BlockedQueue<Integer> queue = new BlockedQueue<>();
+		OrderedQueue<Integer> queue = new OrderedQueue<>();
 		Random random = new Random();
 		for (int i = 0; i < 300; i++) {
 			int value = random.nextInt(50);
