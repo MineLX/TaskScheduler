@@ -11,8 +11,8 @@ public interface SelfScheduled<Self extends SelfScheduled<Self>> extends BeSched
 	default TaskScheduler.Scheduled toScheduled(Consumer<Self> consumer) {
 		return new TaskScheduler.Scheduled() {
 			@Override
-			public Runnable getTask() {
-				return () -> consumer.accept(self());
+			public void doTask() {
+				consumer.accept(self());
 			}
 
 			@Override

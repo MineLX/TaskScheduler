@@ -5,20 +5,18 @@ import com.zyh.pro.taskscheduler.main.Schedulers;
 import com.zyh.pro.taskscheduler.main.SelfScheduled;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.List;
+import static java.util.Arrays.asList;
 
 public class SchedulesTest {
 	@Test
 	public void track() throws InterruptedException {
 		CallbackTask task = new CallbackTask(3);
 
-		List<Kick> kicks = Arrays.asList(
+		Schedulers.track(asList(
 				new Kick(1000, 60),
 				new Kick(1000, 60),
 				new Kick(1500, 30)
-		);
-		Schedulers.track(kicks, kick -> task.done()).start();
+		), kick -> task.done()).start();
 
 		task.waitForCompletion();
 	}

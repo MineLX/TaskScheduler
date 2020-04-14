@@ -10,6 +10,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class TaskSchedulerTest {
+
 	@Test
 	public void shutdown() throws InterruptedException {
 		CallbackTask task = new CallbackTask(2);
@@ -34,30 +35,41 @@ public class TaskSchedulerTest {
 
 	@Test
 	public void simple_test() throws InterruptedException {
-		CallbackTask task = new CallbackTask(200);
+		CallbackTask task = new CallbackTask(400);
 
 		TaskScheduler taskScheduler = new TaskScheduler();
 		taskScheduler.start();
+		long used = System.currentTimeMillis();
 
 		asyncAddTask(task, taskScheduler);
 		asyncAddTask(task, taskScheduler);
+		asyncAddTask(task, taskScheduler);
+		asyncAddTask(task, taskScheduler);
 
+//		taskScheduler.addTask(() -> System.out.println("hello world   " + (System.currentTimeMillis() - used)), 10000);
 		task.waitForCompletion();
 	}
 
 	private void asyncAddTask(CallbackTask task, TaskScheduler taskScheduler) {
 		Executors.newSingleThreadExecutor().submit(() -> {
-			for (int i = 0; i < 100; i++)
-				taskScheduler.addTask(task::done, i * 50);
-			System.out.println("over");
+			System.out.println(Thread.currentThread() + "  -> start");
+			try {
+				for (int i = 0; i < 100; i++)
+					taskScheduler.addTask(task::done, i);
+			} catch (Exception everything) {
+				System.out.println("great job");
+				everything.printStackTrace();
+			}
+			System.out.println(Thread.currentThread() + "  -> end");
+			System.out.println("over count");
 		});
 	}
 
 	private void pushDoneTask(CallbackTask task, TaskScheduler scheduler, final int delay) {
 		scheduler.addTask(new TaskScheduler.Scheduled() {
 			@Override
-			public Runnable getTask() {
-				return task::done;
+			public void doTask() {
+				task.done();
 			}
 
 			@Override

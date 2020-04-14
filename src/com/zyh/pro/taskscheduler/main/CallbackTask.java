@@ -56,6 +56,7 @@ public class CallbackTask {
 	private void progressUp() {
 		synchronized (taskIndexLock) {
 			taskIndex++;
+			System.out.println("taskIndex = " + taskIndex + " , taskCount = " + taskCount);
 		}
 	}
 }
